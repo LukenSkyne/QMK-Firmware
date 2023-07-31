@@ -17,10 +17,10 @@
 #pragma once
 
 // default polling rate is 1ms
-//#define USB_POLLING_INTERVAL_MS 1
+#define USB_POLLING_INTERVAL_MS 1
 
 // default debounce time is 5ms
-//#define DEBOUNCE 5
+#define DEBOUNCE 10
 
 // use this to disable lights when computer goes to sleep
 #define RGB_DISABLE_WHEN_USB_SUSPENDED
