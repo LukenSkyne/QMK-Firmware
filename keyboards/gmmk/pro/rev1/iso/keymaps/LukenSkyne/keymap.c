@@ -70,8 +70,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 /* USER SPACE */
 
 #define NX_RED 0xFF, 0x22, 0x22
-#define NX_YELLOW 0xFF, 0xBB, 0x22
-#define NX_BLUE 0x33, 0xC5, 0xEE
 
 static uint32_t nx_blink_time = 0;
 
@@ -128,11 +126,11 @@ void layer_fn(uint8_t index, uint16_t keycode) {
         break;
     case NK_TOGG:
         if (!keymap_config.nkro) {
-            rgb_matrix_set_color(index, NX_YELLOW);
+            rgb_matrix_set_color(index, NX_RED);
             break;
         }
     default:
-        rgb_matrix_set_color(index, NX_BLUE);
+        rgb_matrix_set_color(index, RGB_WHITE);
     }
 }
 
@@ -148,11 +146,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             v_prev = rgb_matrix_config.hsv.v;
         }
 
-        if (layer == 0) {
+        if (layer < 2) {
             rgb_matrix_config.hsv.v = v_prev;
-        } else if (layer == 1) {
-            rgb_matrix_config.hsv.v = v_prev * 0.5;
-        } else if (layer > 1) {
+        } else if (layer == 2) {
             rgb_matrix_config.hsv.v = 0;
             nx_blink_time = timer_read32();
         }
