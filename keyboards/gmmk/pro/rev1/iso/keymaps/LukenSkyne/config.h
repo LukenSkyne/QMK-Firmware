@@ -20,10 +20,14 @@
 #define USB_POLLING_INTERVAL_MS 1
 
 // default debounce time is 5ms
-#define DEBOUNCE 10
+#define DEBOUNCE 25
 
 // use this to disable lights when computer goes to sleep
 #define RGB_DISABLE_WHEN_USB_SUSPENDED
 
 // allow the keyboard to hold down 248 keys at once (default NKRO is 6)
 #define FORCE_NKRO
+
+// raw hid details (defaults are 0xFF60 and 0x61)
+//#define RAW_USAGE_PAGE 0xFF80
+//#define RAW_USAGE_ID 0x81
