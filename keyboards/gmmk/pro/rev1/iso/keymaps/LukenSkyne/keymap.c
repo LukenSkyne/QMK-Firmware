@@ -15,6 +15,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include "raw_hid.h"
+//#include "print.h"
+
+enum custom_keycodes {
+    NX_DOKI = SAFE_RANGE,
+    NX_SVLD,
+    NX_SVLU,
+    NX_SPRV,
+    NX_SNXT,
+    NX_SPLY,
+};
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -39,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Since this is, among other things, a "gaming" keyboard, a key combination to enable NKRO on the fly is provided for convenience.
     // Press Fn+N to toggle between 6KRO and NKRO. This setting is persisted to the EEPROM and thus persists between restarts.
     [0] = LAYOUT(
-        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,          KC_MUTE,
+        KC_ESC,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_PSCR,          NX_SPLY,
         KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC,          KC_DEL,
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,                   KC_PGUP,
         KC_CAPS, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, KC_NUHS, KC_ENT,           KC_PGDN,
@@ -48,30 +59,41 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [1] = LAYOUT(
-        _______, KC_MYCM, KC_WHOM, KC_CALC, KC_MSEL, KC_MPRV, KC_MNXT, KC_MPLY, KC_MSTP, KC_MUTE, KC_VOLD, KC_VOLU, _______, _______,          _______,
-        _______, RGB_TOG, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, QK_BOOT,          _______,
-        _______, _______, RGB_VAI, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,                   _______,
-        _______, _______, RGB_VAD, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
-        _______, _______, _______, RGB_HUI, _______, _______, _______, NK_TOGG, _______, _______, _______, _______,          _______, RGB_MOD, _______,
-        _______, _______, _______,                            _______,                            _______, _______, _______, RGB_SPD, RGB_RMOD, RGB_SPI
+        _______, KC_MYCM, KC_WHOM, KC_CALC, KC_MSEL, _______, _______,  _______, _______, _______, _______, _______, _______, _______,                KC_MUTE,
+        _______, RGB_TOG, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, QK_BOOT,                _______,
+        _______, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______,                         KC_MPRV,
+        _______, _______, _______, RGB_SAD, RGB_SAI, _______, NX_DOKI,  _______, _______, _______, _______, _______, _______, _______,                KC_MNXT,
+        _______, _______, _______, _______, _______, _______, _______,  NK_TOGG, _______, _______, _______, _______,          _______,    KC_MS_UP,   _______,
+        _______, _______, _______,                            _______,                             _______, _______, _______, KC_MS_LEFT, KC_MS_DOWN, KC_MS_RIGHT
     ),
 
-
+    [2] = LAYOUT(
+        QK_BOOT, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,                   _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______,
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, _______,
+        _______, _______, _______,                            _______,                            _______, _______, _______, _______, _______, _______
+    ),
 };
 // clang-format on
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
-    [1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
+    [0] = { ENCODER_CCW_CW(NX_SVLD, NX_SVLU) },
+    [1] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS) }
 };
 #endif
 
-/* USER SPACE */
+/*
+ * USER SPACE
+ */
 
 #define NX_RED 0xFF, 0x22, 0x22
 
 static uint32_t nx_blink_time = 0;
+static uint32_t nx_heartbeat_time = 0;
 
 uint16_t get_blink_delta(void) {
     uint32_t current_time = timer_read32();
@@ -134,6 +156,83 @@ void layer_fn(uint8_t index, uint16_t keycode) {
     }
 }
 
+/*
+ * Overrides
+ */
+
+// setup
+void keyboard_post_init_user(void) {
+    //debug_enable = true;
+    //debug_matrix=true;
+    //debug_keyboard=true;
+    //debug_mouse=true;
+}
+
+// hid receive callback
+bool via_command_kb(uint8_t *data, uint8_t length) {
+    if (length > 3 && data[0] == 0x42 && data[1] == 0x42 && data[2] == 0x42 && data[3] == 0x42) {
+        nx_heartbeat_time = timer_read32();
+        #ifdef CONSOLE_ENABLE
+        printf("received heartbeat: %lu\n", nx_heartbeat_time);
+        #endif
+
+        return true;
+    }
+
+    return false;
+}
+
+// hotkey callback
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    #ifdef CONSOLE_ENABLE
+    dprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+    #endif
+
+    uint32_t heartbeat_delta = timer_read32() - nx_heartbeat_time;
+
+    if (keycode >= NX_SVLD && keycode <= NX_SPLY && heartbeat_delta < 20000) {
+        if (!record->event.pressed) {
+            return true;
+        }
+
+        uint8_t data[32] = { 0 };
+        data[0] = 0x42;
+        data[1] = 0x42;
+        data[2] = 0x42;
+        data[3] = 0x42;
+        data[4] = keycode - NX_SVLD + 1;
+        raw_hid_send(data, sizeof(data));
+
+        return true;
+    }
+
+    switch (keycode) {
+    case NX_DOKI: {
+        if (record->event.pressed) {
+            SEND_STRING(SS_DOWN(X_LALT) SS_DOWN(X_P3) SS_UP(X_P3) SS_UP(X_LALT));
+        }
+    } break;
+    case NX_SPRV: {
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_MPRV));
+        }
+    } break;
+    case NX_SNXT: {
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_MNXT));
+        }
+    } break;
+    case NX_SPLY: {
+        if (record->event.pressed) {
+            SEND_STRING(SS_TAP(X_MPLY));
+        }
+    } break;
+    }
+
+    return true;
+}
+
+// rgb adjustment
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     uint8_t layer = get_highest_layer(layer_state);
 
@@ -142,6 +241,10 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     // decrease brightness (value) by half when a layer is active
     if (layer_prev != layer) {
+        #ifdef CONSOLE_ENABLE
+        dprintf("Layer: %u", layer);
+        #endif
+
         if (layer_prev == 0) {
             v_prev = rgb_matrix_config.hsv.v;
         }
